@@ -19,10 +19,7 @@
     updatedAt: document.querySelector("#updated-at"),
     parallelMode: document.querySelector("#parallel-mode"),
     englishMode: document.querySelector("#english-mode"),
-    routeMapToggle: document.querySelector("#route-map-toggle"),
-    routeMap: document.querySelector("#route-map"),
-    routeMapFlow: document.querySelector("#route-map-flow"),
-    routeTabs: document.querySelector("#route-tabs"),
+    routeSelect: document.querySelector("#route-select"),
     chapterPicker: document.querySelector("#chapter-picker"),
     chapterButton: document.querySelector("#chapter-menu-button"),
     chapterValue: document.querySelector("#chapter-menu-value"),
@@ -32,10 +29,8 @@
     nextChapter: document.querySelector("#next-chapter"),
     search: document.querySelector("#script-search"),
     clearSearch: document.querySelector("#clear-search"),
-    chapterRoute: document.querySelector("#chapter-route"),
     chapterTitle: document.querySelector("#chapter-title"),
     chapterProgress: document.querySelector("#chapter-progress"),
-    chapterTitleArt: document.querySelector("#chapter-title-art"),
     resultStatus: document.querySelector("#result-status"),
     scriptLines: document.querySelector("#script-lines"),
     emptyState: document.querySelector("#empty-state"),
@@ -155,7 +150,6 @@
     state.chapter = slug;
     state.route = meta.route;
     closeChapterMenu();
-    renderRouteNavigation();
     updateChapterControls();
     updateUrl();
     renderCurrentChapter();
@@ -227,12 +221,7 @@
     elements.chapterMenuOptions.querySelectorAll(".chapter-menu-option").forEach((option) => {
       option.setAttribute("aria-selected", String(option.dataset.slug === state.chapter));
     });
-    elements.routeTabs.querySelectorAll("button").forEach((button) => {
-      button.setAttribute("aria-current", button.dataset.route === route.id ? "page" : "false");
-    });
-    elements.routeMapFlow.querySelectorAll("button").forEach((button) => {
-      button.setAttribute("aria-current", button.dataset.route === route.id ? "step" : "false");
-    });
+    elements.routeSelect.value = route.id;
     updateEndNavigation();
   }
 
@@ -255,13 +244,9 @@
     for (const route of state.index.routes) {
       const group = document.createElement("section");
       group.className = "chapter-menu-group";
-      const heading = document.createElement("div");
-      heading.className = "chapter-menu-group-heading";
-      const title = document.createElement("strong");
-      title.textContent = route.label;
-      const count = document.createElement("span");
-      count.textContent = `${route.chapters.length} chapters`;
-      heading.append(title, count);
+      const heading = document.createElement("h3");
+      heading.className = "chapter-menu-heading";
+      heading.textContent = route.label;
       group.append(heading);
 
       for (const slug of route.chapters) {
@@ -272,15 +257,7 @@
         option.dataset.slug = slug;
         option.setAttribute("role", "option");
         option.setAttribute("aria-selected", "false");
-        const chapterNumber = document.createElement("span");
-        chapterNumber.className = "chapter-option-number";
-        chapterNumber.textContent = slug;
-        const chapterLabel = document.createElement("span");
-        chapterLabel.textContent = meta.title;
-        const lineCount = document.createElement("span");
-        lineCount.className = "chapter-option-lines";
-        lineCount.textContent = number.format(meta.lineCount);
-        option.append(chapterNumber, chapterLabel, lineCount);
+        option.textContent = `${slug} · ${meta.title}`;
         option.addEventListener("click", () => selectChapter(slug));
         group.append(option);
       }
@@ -289,42 +266,14 @@
     elements.chapterMenuOptions.append(fragment);
   }
 
-  function renderRouteNavigation() {
-    elements.routeTabs.replaceChildren();
+  function buildRouteSelect() {
     for (const route of state.index.routes) {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.dataset.route = route.id;
-      button.innerHTML = `<span>${route.shortLabel}</span><small>${route.chapters.length} ch.</small>`;
-      button.addEventListener("click", () => {
-        const target = state.route === route.id ? state.chapter : route.chapters[0];
-        selectChapter(target);
-      });
-      elements.routeTabs.append(button);
+      const option = document.createElement("option");
+      option.value = route.id;
+      option.textContent = route.label;
+      elements.routeSelect.append(option);
     }
-    updateChapterControls();
-  }
-
-  function buildRouteMap() {
-    const common = routeMeta("common");
-    const final = routeMeta("final");
-    const commonButton = makeNavButton(`${common.label}\n${common.chapters.length} chapters`, common.chapters[0], "route-node route-node-common");
-    commonButton.dataset.route = common.id;
-    const branches = document.createElement("div");
-    branches.className = "route-branches";
-    for (const id of ["kuro", "twins", "rui"]) {
-      const route = routeMeta(id);
-      const button = makeNavButton(`${route.label}\n${route.chapters.length} chapters · 2 endings`, route.chapters[0], "route-node route-node-branch");
-      button.dataset.route = route.id;
-      branches.append(button);
-    }
-    const finalButton = makeNavButton(`${final.label}\n${final.chapters.length} chapters`, final.chapters[0], "route-node route-node-final");
-    finalButton.dataset.route = final.id;
-    const arrow1 = document.createElement("span");
-    arrow1.className = "route-arrow";
-    arrow1.textContent = "→";
-    const arrow2 = arrow1.cloneNode(true);
-    elements.routeMapFlow.append(commonButton, arrow1, branches, arrow2, finalButton);
+    elements.routeSelect.value = state.route;
   }
 
   function makeLineArticle(line, meta, terms, includeChapter) {
@@ -357,12 +306,8 @@
     const routePosition = route.chapters.indexOf(state.chapter) + 1;
     elements.resultStatus.hidden = false;
     elements.resultStatus.textContent = "Loading script…";
-    elements.chapterRoute.textContent = route.label;
     elements.chapterTitle.textContent = meta.title;
     elements.chapterProgress.textContent = `Chapter ${routePosition} of ${route.chapters.length} · ${number.format(meta.lineCount)} translated lines`;
-    elements.chapterTitleArt.hidden = false;
-    elements.chapterTitleArt.src = meta.titleArt;
-    elements.chapterTitleArt.onerror = () => { elements.chapterTitleArt.hidden = true; };
 
     const terms = queryTerms();
     let chapterSlugs;
@@ -392,7 +337,7 @@
         elements.resultStatus.textContent = capped;
       }
       updateChapterControls();
-      const hashTarget = window.location.hash && document.querySelector(window.location.hash);
+      const hashTarget = window.location.hash ? document.querySelector(window.location.hash) : null;
       hashTarget?.scrollIntoView({ block: "center" });
     } catch (error) {
       elements.scriptLines.replaceChildren();
@@ -420,10 +365,9 @@
       updateReadingMode();
       updateUrl();
     });
-    elements.routeMapToggle.addEventListener("click", () => {
-      const open = elements.routeMap.hidden;
-      elements.routeMap.hidden = !open;
-      elements.routeMapToggle.setAttribute("aria-expanded", String(open));
+    elements.routeSelect.addEventListener("change", () => {
+      const route = routeMeta(elements.routeSelect.value);
+      selectChapter(route.chapters[0]);
     });
     elements.chapterButton.addEventListener("click", () => {
       if (elements.chapterMenu.hidden) openChapterMenu();
@@ -492,8 +436,8 @@
       scopeRadio.checked = true;
 
       buildChapterMenu();
-      buildRouteMap();
-      renderRouteNavigation();
+      buildRouteSelect();
+      updateChapterControls();
       updateSearchPlaceholder();
       updateReadingMode();
       bindEvents();

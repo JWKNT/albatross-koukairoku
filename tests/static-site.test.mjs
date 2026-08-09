@@ -5,13 +5,19 @@ import test from "node:test";
 const root = new URL("../", import.meta.url);
 const read = (path) => readFile(new URL(path, root), "utf8");
 
-test("page exposes the route-aware reader controls", async () => {
+test("page exposes the minimal route-aware reader controls", async () => {
   const html = await read("index.html");
   assert.match(html, /Albatross Koukairoku Script Reader/);
-  assert.match(html, /id="route-tabs"/);
-  assert.match(html, /id="route-map"/);
+  assert.match(html, /id="route-select"/);
   assert.match(html, /value="route"/);
   assert.match(html, /English reader/);
+  assert.doesNotMatch(html, /id="route-map"/);
+});
+
+test("empty URL hashes cannot trigger the chapter-load error state", async () => {
+  const script = await read("assets/app.js");
+  assert.match(script, /window\.location\.hash \? document\.querySelector/);
+  assert.doesNotMatch(script, /window\.location\.hash && document\.querySelector/);
 });
 
 test("index covers every canonical route and chapter", async () => {
