@@ -8,6 +8,8 @@ const read = (path) => readFile(new URL(path, root), "utf8");
 test("page exposes the minimal route-aware reader controls", async () => {
   const html = await read("index.html");
   assert.match(html, /Albatross Koukairoku Script Reader/);
+  assert.match(html, /href="\/site-theme\/v1\/base\.css"/);
+  assert.match(html, /src="\/site-theme\/v1\/theme\.js"/);
   assert.match(html, /id="route-select"/);
   assert.match(html, /value="route"/);
   assert.match(html, /English reader/);
