@@ -51,6 +51,26 @@ test("chapter JSON and title art exist for every index entry", async () => {
   }
 });
 
+test("English reader backgrounds resolve to exported game art", async () => {
+  const index = JSON.parse(await read("data/index.json"));
+  const backgroundFiles = new Set(await readdir(new URL("assets/backgrounds/", root)));
+  let transitionCount = 0;
+  for (const meta of index.chapters) {
+    const chapter = JSON.parse(await read(`data/chapters/${meta.slug}.json`));
+    for (const line of chapter.lines) {
+      if (!line.bg) continue;
+      transitionCount += 1;
+      assert.match(line.bg, /^assets\/backgrounds\/\d{4}\.webp$/);
+      assert.ok(backgroundFiles.has(line.bg.split("/").at(-1)), `missing ${line.bg}`);
+    }
+  }
+  assert.ok(transitionCount > 800, `expected the full visual event stream, got ${transitionCount}`);
+
+  const script = await read("assets/app.js");
+  assert.match(script, /makeBackgroundFigure/);
+  assert.match(script, /if \(line\.bg\)/);
+});
+
 test("branch points identify both endings", async () => {
   const index = JSON.parse(await read("data/index.json"));
   const expected = {

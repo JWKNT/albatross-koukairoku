@@ -299,6 +299,21 @@
     return article;
   }
 
+  function makeBackgroundFigure(source, lineId) {
+    const figure = document.createElement("figure");
+    figure.className = "reader-background";
+    const image = document.createElement("img");
+    image.src = source;
+    image.alt = "";
+    image.loading = "lazy";
+    image.decoding = "async";
+    image.width = 800;
+    image.height = 600;
+    figure.dataset.beforeLine = lineId;
+    figure.append(image);
+    return figure;
+  }
+
   async function renderCurrentChapter() {
     const token = ++state.searchToken;
     const meta = chapterMeta();
@@ -319,13 +334,18 @@
       const chapters = await Promise.all(chapterSlugs.map(loadChapter));
       if (token !== state.searchToken) return;
       const results = [];
+      let shownResults = 0;
       let totalMatches = 0;
       for (const chapter of chapters) {
         const chapterInfo = chapterMeta(chapter.slug);
         for (const line of chapter.lines) {
           if (!matches(line, terms)) continue;
           totalMatches += 1;
-          if (results.length < MAX_RESULTS) results.push(makeLineArticle(line, chapterInfo, terms, chapterSlugs.length > 1));
+          if (shownResults < MAX_RESULTS) {
+            if (line.bg) results.push(makeBackgroundFigure(line.bg, line.id));
+            results.push(makeLineArticle(line, chapterInfo, terms, chapterSlugs.length > 1));
+            shownResults += 1;
+          }
         }
       }
       elements.scriptLines.replaceChildren(...results);
