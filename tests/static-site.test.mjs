@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile, readdir } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import test from "node:test";
 
 const root = new URL("../", import.meta.url);
@@ -71,6 +71,23 @@ test("English reader backgrounds resolve to exported game art", async () => {
   const script = await read("assets/app.js");
   assert.match(script, /makeBackgroundFigure/);
   assert.match(script, /if \(line\.bg\)/);
+});
+
+test("audited adult CGs have a reproducible censorship manifest", async () => {
+  const manifest = JSON.parse(await read("assets/backgrounds/censored-images.json"));
+  const backgroundFiles = new Set(await readdir(new URL("assets/backgrounds/", root)));
+
+  assert.equal(manifest.count, 140);
+  assert.equal(manifest.images.length, manifest.count);
+  assert.equal(new Set(manifest.images).size, manifest.count);
+  assert.match(manifest.method, /12x9 mosaic/);
+  assert.match(manifest.method, /Gaussian blur radius 6/);
+  for (const filename of manifest.images) {
+    assert.match(filename, /^\d{4}\.webp$/);
+    assert.ok(backgroundFiles.has(filename), `missing censored image ${filename}`);
+    const metadata = await stat(new URL(`assets/backgrounds/${filename}`, root));
+    assert.ok(metadata.size < 10 * 1024, `censorship appears absent from ${filename}`);
+  }
 });
 
 test("branch points identify both endings", async () => {

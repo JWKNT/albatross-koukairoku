@@ -8,7 +8,9 @@ A static, route-aware Japanese/English reader for the current machine-assisted f
 - Common, Kuro, Sisam & Kisara, Rui, and final-voyage navigation.
 - Explicit branch navigation for the two endings in each character voyage.
 - Chapter, route, and whole-story search with stable line links.
-- Spoiler-light original chapter title art and an original game UI background.
+- Original chapter title art and in-story backgrounds/CGs; audited adult CGs are
+  published only as aggressive full-frame mosaics (see
+  `assets/backgrounds/censored-images.json`).
 - Responsive layouts, dark mode, and keyboard-accessible controls.
 
 ## Refreshing the site data
