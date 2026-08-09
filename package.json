@@ -1,0 +1,9 @@
+{
+  "name": "albatross-koukairoku-reader",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:data": "python3 tools/build_data.py && python3 tools/export_art.py",
+    "test": "node --test tests/static-site.test.mjs"
+  }
+}

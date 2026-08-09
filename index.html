@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A route-aware Japanese and English script reader for Albatross Koukairoku.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Albatross Koukairoku Script Reader">
+    <meta property="og:description" content="Read the Japanese script beside the current English fan translation, with every route and ending in story order.">
+    <meta property="og:url" content="https://jwknt.github.io/albatross-koukairoku/">
+    <meta name="twitter:card" content="summary">
+    <meta name="theme-color" content="#f7fbfb">
+    <title>Albatross Koukairoku Script Reader</title>
+    <script src="https://jwknt.github.io/site-theme/v1/theme.js"></script>
+    <link rel="stylesheet" href="https://jwknt.github.io/site-theme/v1/base.css">
+    <link rel="stylesheet" href="assets/styles.css?v=20260809.1">
+  </head>
+  <body>
+    <a class="skip-link" href="#script-lines">Skip to script</a>
+
+    <header class="site-header">
+      <a class="site-title" href="./">Albatross Koukairoku</a>
+      <nav aria-label="Site links">
+        <a href="./" aria-current="page">Reader</a>
+        <a href="https://github.com/JWKNT/albatross-koukairoku" target="_blank" rel="noreferrer">GitHub</a>
+        <button class="theme-toggle" id="theme-toggle" type="button" data-theme-toggle aria-label="Use dark theme" aria-pressed="false">◐</button>
+      </nav>
+    </header>
+
+    <main class="reader-shell">
+      <section class="intro" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">信天翁航海録 · Fan translation</p>
+          <h1 id="page-title">Script reader</h1>
+          <p>Japanese source beside the current English machine-assisted translation, arranged across every voyage and ending.</p>
+          <details class="content-advisory">
+            <summary>Adult content advisory</summary>
+            <p>This 18+ work includes explicit sexual material, violence, abuse, and horror. Chapter art is kept spoiler-light.</p>
+          </details>
+        </div>
+        <dl class="quick-stats" aria-label="Translation coverage">
+          <div><dt>Routes</dt><dd id="route-count">5</dd></div>
+          <div><dt>Chapters</dt><dd id="chapter-count">—</dd></div>
+          <div><dt>Lines</dt><dd id="line-count">—</dd></div>
+          <div><dt>Updated</dt><dd id="updated-at">—</dd></div>
+        </dl>
+      </section>
+
+      <nav class="view-switcher" aria-label="Reading mode">
+        <button id="parallel-mode" type="button" aria-pressed="true">JP / EN comparison</button>
+        <button id="english-mode" type="button" aria-pressed="false">English reader</button>
+        <button id="route-map-toggle" type="button" aria-expanded="false" aria-controls="route-map">Route map</button>
+      </nav>
+
+      <section class="route-map" id="route-map" aria-label="Story route map" hidden>
+        <div class="route-map-intro">
+          <span class="control-label">Reading order</span>
+          <p>Begin with the common voyage, choose any of the three parallel character voyages, then continue to the final voyage. Each character voyage has two ending chapters.</p>
+        </div>
+        <div class="route-map-flow" id="route-map-flow"></div>
+      </section>
+
+      <nav class="route-tabs" id="route-tabs" aria-label="Story routes"></nav>
+
+      <section class="reader-controls" id="reader-controls" aria-label="Reader controls">
+        <div class="chapter-control">
+          <span class="control-label" id="chapter-label">Chapter</span>
+          <button id="previous-chapter" type="button" aria-label="Previous chapter">←</button>
+          <div class="chapter-picker" id="chapter-picker">
+            <button class="chapter-picker-button" id="chapter-menu-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="chapter-menu" aria-labelledby="chapter-label chapter-menu-value">
+              <span id="chapter-menu-value">Loading…</span>
+              <span class="chapter-picker-caret" aria-hidden="true">⌄</span>
+            </button>
+            <div class="chapter-menu" id="chapter-menu" role="dialog" aria-labelledby="chapter-label" hidden>
+              <div class="chapter-menu-summary">
+                <strong>Choose a voyage and chapter</strong>
+                <span>Branch endings are listed separately.</span>
+              </div>
+              <div class="chapter-menu-options" id="chapter-menu-options" role="listbox" aria-labelledby="chapter-label"></div>
+            </div>
+          </div>
+          <button id="next-chapter" type="button" aria-label="Next chapter">→</button>
+        </div>
+
+        <fieldset class="scope-control">
+          <legend>Search</legend>
+          <label><input type="radio" name="search-scope" value="chapter" checked> This chapter</label>
+          <label><input type="radio" name="search-scope" value="route"> This route</label>
+          <label><input type="radio" name="search-scope" value="all"> All routes</label>
+        </fieldset>
+
+        <label class="search-control" for="script-search">
+          <span>JP, EN, speaker, or line ID</span>
+          <input id="script-search" type="search" autocomplete="off" placeholder="Search this chapter" spellcheck="false">
+        </label>
+
+        <button class="clear-search" id="clear-search" type="button" hidden>Clear</button>
+      </section>
+
+      <section class="chapter-masthead" aria-live="polite">
+        <div class="chapter-heading">
+          <p class="chapter-route" id="chapter-route">Loading…</p>
+          <h2 id="chapter-title">Loading…</h2>
+          <p id="chapter-progress"></p>
+        </div>
+        <div class="chapter-title-art-wrap" aria-hidden="true">
+          <img id="chapter-title-art" class="chapter-title-art" alt="" width="350" height="80">
+        </div>
+        <p class="result-status" id="result-status" role="status" hidden>Loading script…</p>
+      </section>
+
+      <section class="script-lines" id="script-lines" aria-label="Bilingual script"></section>
+
+      <div class="empty-state" id="empty-state" hidden>
+        <h2>No matching lines</h2>
+        <p>Try a broader search or another voyage.</p>
+      </div>
+
+      <nav class="chapter-end-navigation" id="chapter-end-navigation" aria-label="Continue reading">
+        <span id="end-order-label">Continue this voyage</span>
+        <div class="end-actions" id="end-actions"></div>
+      </nav>
+
+      <a class="back-to-controls" href="#reader-controls">Back to controls ↑</a>
+    </main>
+
+    <footer>
+      <p>Unofficial, noncommercial fan translation. Please support raiL-soft and own a legal Japanese copy of <cite>Albatross Koukairoku</cite>.</p>
+      <p>English text is a machine-assisted draft and may change as review continues.</p>
+    </footer>
+
+    <template id="line-template">
+      <article class="script-line">
+        <a class="line-number"></a>
+        <div class="language-column japanese">
+          <span class="language-label">JP</span>
+          <span class="speaker"></span>
+          <p class="line-text" lang="ja"></p>
+        </div>
+        <div class="language-column english">
+          <span class="language-label">EN</span>
+          <span class="speaker"></span>
+          <p class="line-text" lang="en"></p>
+        </div>
+      </article>
+    </template>
+
+    <script src="assets/app.js?v=20260809.1"></script>
+  </body>
+</html>
