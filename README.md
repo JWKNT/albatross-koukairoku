@@ -30,7 +30,9 @@ The repository includes a [one-click complete game patcher](tools/albatross-comp
 that converts a verified fresh Japanese Windows copy into the current English
 build without distributing the original game. It installs the complete
 word-wrapped script, localized interface and gallery graphics, and horizontal
-English layout. Original archives are verified and retained for rollback.
+English layout. On macOS/CrossOver it also fixes fullscreen mode without
+requiring an unavailable 800×600 display mode. Original files are verified and
+retained for rollback.
 
 ## Disclaimer
 

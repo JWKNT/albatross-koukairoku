@@ -17,6 +17,7 @@ FILES = {
     "english-grpo": "grpo.xfl",
     "english-grpe": "grpe.xfl",
     "english-grpo-ex": "grpo_ex.xfl",
+    "macos-fullscreen-exe": "信天翁航海録.exe",
 }
 
 

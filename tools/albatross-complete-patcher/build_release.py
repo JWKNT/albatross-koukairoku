@@ -36,7 +36,7 @@ def included_files() -> list[Path]:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--version", default="1.0.0")
+    parser.add_argument("--version", default="1.1.0")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     payload_report = PATCHER / "payload/build-report.json"
