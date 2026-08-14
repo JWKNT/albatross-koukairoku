@@ -15,7 +15,7 @@ from pathlib import Path
 from delta_codec import apply_delta, sha256
 
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 PATCHER = Path(__file__).resolve().parent
 PAYLOAD = PATCHER / "payload"
 GAME_EXE = "信天翁航海録.exe"
@@ -24,13 +24,22 @@ STAGING_NAME = ".albatross-patcher-staging"
 SAVE_RELATIVE = Path("save/rssave.dat")
 DIRECTION_OFFSET = 0x84A
 HORIZONTAL = 1
-PATCHES = {
+ARCHIVE_PATCHES = {
     "scr.xfl": "english-scr",
     "grps.xfl": "english-grps",
     "grpo.xfl": "english-grpo",
     "grpe.xfl": "english-grpe",
     "grpo_ex.xfl": "english-grpo-ex",
 }
+MACOS_PATCHES = {GAME_EXE: "macos-fullscreen-exe"}
+PATCHES = {**ARCHIVE_PATCHES, **MACOS_PATCHES}
+
+
+def selected_patches(platform: str | None = None) -> dict[str, str]:
+    patches = dict(ARCHIVE_PATCHES)
+    if (platform or sys.platform) == "darwin":
+        patches.update(MACOS_PATCHES)
+    return patches
 
 
 def normalized_game_path(value: str | Path) -> Path:
@@ -62,9 +71,10 @@ def discover_game(argument: Path | None) -> Path:
     return normalized_game_path(parse_dragged_path(input("> ")))
 
 
-def manifests() -> dict[str, dict[str, object]]:
+def manifests(*, include_all: bool = False) -> dict[str, dict[str, object]]:
     result: dict[str, dict[str, object]] = {}
-    for filename, patch_name in PATCHES.items():
+    patches = PATCHES if include_all else selected_patches()
+    for filename, patch_name in patches.items():
         path = PAYLOAD / patch_name / "manifest.json"
         if not path.is_file():
             raise FileNotFoundError(f"Patch payload is incomplete: {path}")
@@ -82,7 +92,7 @@ def validate_game_shell(game: Path) -> None:
             f"{game} is not a Windows Albatross Koukairoku installation "
             f"({GAME_EXE} is required)"
         )
-    for filename in PATCHES:
+    for filename in ARCHIVE_PATCHES:
         if not (game / filename).is_file():
             raise ValueError(f"Game archive is missing: {game / filename}")
     save = game / SAVE_RELATIVE
@@ -92,7 +102,10 @@ def validate_game_shell(game: Path) -> None:
 
 def source_backups(game: Path) -> dict[str, Path]:
     backup = game / STATE_NAME / "backup"
-    return {filename: backup / f"{filename}.original" for filename in PATCHES}
+    return {
+        filename: backup / f"{filename}.original"
+        for filename in selected_patches()
+    }
 
 
 def validate_backups(game: Path, payload: dict[str, dict[str, object]]) -> dict[str, Path]:
@@ -106,6 +119,25 @@ def validate_backups(game: Path, payload: dict[str, dict[str, object]]) -> dict[
         ):
             raise ValueError(f"Original rollback source is missing or corrupt: {source}")
     return backups
+
+
+def migrate_missing_backups(
+    game: Path, payload: dict[str, dict[str, object]]
+) -> None:
+    """Add files introduced by a newer patcher to an existing rollback set."""
+    for filename, backup in source_backups(game).items():
+        if backup.exists():
+            continue
+        current = game / filename
+        expected = payload[filename]
+        if not current.is_file() or sha256(current) != expected["source_sha256"]:
+            raise ValueError(
+                f"Cannot add rollback source for the new patch component: {current}"
+            )
+        backup.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(current, backup)
+        if sha256(backup) != expected["source_sha256"]:
+            raise IOError(f"Rollback source migration failed: {backup}")
 
 
 def archive_state(
@@ -152,7 +184,7 @@ def build_staging(
         raise FileExistsError(f"Remove interrupted staging first: {staging}")
     staging.mkdir()
     results: dict[str, dict[str, object]] = {}
-    for filename, patch_name in PATCHES.items():
+    for filename, patch_name in selected_patches().items():
         print(f"  Rebuilding English {filename}...")
         results[filename] = apply_delta(
             sources[filename], PAYLOAD / patch_name, staging / filename
@@ -180,16 +212,17 @@ def install_fresh(
         raise ValueError(f"Existing patch metadata blocks a fresh install: {game / STATE_NAME}")
     original_direction = read_direction(game / SAVE_RELATIVE)
     staging = game / STAGING_NAME
-    sources = {filename: game / filename for filename in PATCHES}
+    patches = selected_patches()
+    sources = {filename: game / filename for filename in patches}
     results = build_staging(sources, staging)
     state = game / STATE_NAME
     backup = state / "backup"
     committed = False
     try:
         backup.mkdir(parents=True)
-        for filename in PATCHES:
+        for filename in patches:
             os.replace(game / filename, backup / f"{filename}.original")
-        for filename in PATCHES:
+        for filename in patches:
             os.replace(staging / filename, game / filename)
         write_direction(game / SAVE_RELATIVE, HORIZONTAL)
         report = installation_report(
@@ -213,6 +246,7 @@ def install_fresh(
 def update_installed(
     game: Path, payload: dict[str, dict[str, object]]
 ) -> dict[str, object]:
+    migrate_missing_backups(game, payload)
     backups = validate_backups(game, payload)
     report_path = game / STATE_NAME / "install-report.json"
     previous_report = (
@@ -229,7 +263,7 @@ def update_installed(
             game, payload, {}, original_direction, operation="already-current"
         )
         report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-        print("The English archives are already current.")
+        print("The English patch files are already current.")
         return report
 
     staging = game / STAGING_NAME
@@ -238,7 +272,7 @@ def update_installed(
     rollback.mkdir()
     replaced: list[str] = []
     try:
-        for filename in PATCHES:
+        for filename in selected_patches():
             os.replace(game / filename, rollback / filename)
             replaced.append(filename)
             os.replace(staging / filename, game / filename)
@@ -269,7 +303,7 @@ def installation_report(
     *,
     operation: str,
 ) -> dict[str, object]:
-    files = {filename: sha256(game / filename) for filename in PATCHES}
+    files = {filename: sha256(game / filename) for filename in selected_patches()}
     for filename, details in payload.items():
         if files[filename] != details["target_sha256"]:
             raise ValueError(f"Installed archive failed verification: {filename}")
@@ -279,6 +313,7 @@ def installation_report(
         "operation": operation,
         "game": str(game),
         "writing_direction": "horizontal",
+        "macos_fullscreen_compatibility": sys.platform == "darwin",
         "writing_direction_offset": f"0x{DIRECTION_OFFSET:X}",
         "original_direction": original_direction,
         "files": files,
@@ -300,7 +335,7 @@ def verify_installed(game: Path) -> dict[str, object]:
     result = {
         "status": "CLEAN" if not issues else "FAILED",
         "game": str(game),
-        "archives": state,
+        "files": state,
         "writing_direction": read_direction(game / SAVE_RELATIVE),
         "issues": issues,
     }
@@ -312,6 +347,7 @@ def verify_installed(game: Path) -> dict[str, object]:
 def restore(game: Path) -> dict[str, object]:
     validate_game_shell(game)
     payload = manifests()
+    migrate_missing_backups(game, payload)
     backups = validate_backups(game, payload)
     state = game / STATE_NAME
     report_path = state / "install-report.json"
@@ -334,7 +370,7 @@ def restore(game: Path) -> dict[str, object]:
             shutil.copy2(source, staging / filename)
             if sha256(staging / filename) != payload[filename]["source_sha256"]:
                 raise IOError(f"Restore staging verification failed: {filename}")
-        for filename in PATCHES:
+        for filename in selected_patches():
             os.replace(game / filename, rollback / filename)
             replaced.append(filename)
             os.replace(staging / filename, game / filename)
@@ -377,7 +413,7 @@ def install_or_update(game: Path, require_update: bool = False) -> dict[str, obj
         print("Verifying and updating the installed English patch...")
         return update_installed(game, payload)
     raise ValueError(
-        "The game archives are mixed or unsupported. No files were changed. "
+        "The game files are mixed or unsupported. No files were changed. "
         f"Detected states: {state}"
     )
 

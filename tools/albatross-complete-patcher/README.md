@@ -7,7 +7,10 @@ into the complete English build. It installs:
 - localized chapter titles, configuration, save/load, and toolbar graphics;
 - English title-screen and Extras navigation in every interaction state;
 - localized gallery headings, captions, locked tile, and music titles;
-- the engine's native horizontal-writing preference.
+- the engine's native horizontal-writing preference;
+- on macOS/CrossOver, a fullscreen compatibility fix that replaces the
+  unavailable 800×600 display-mode switch with the largest centered 4:3
+  borderless window that fits the current screen.
 
 The release contains binary differences, not the original game. You must own a
 compatible Japanese Windows copy. Every source archive is verified before any
@@ -24,9 +27,12 @@ original archives are retained for rollback.
 4. Launch the game normally after the installer reports `Finished`.
 
 Python 3.9 or newer is the only patch-time requirement. The installer needs
-temporary free space for the five rebuilt archives. Original Japanese archives
-are retained under `AlbatrossEnglish/backup` so installation can be verified,
+temporary free space for the rebuilt files. Original Japanese files are
+retained under `AlbatrossEnglish/backup` so installation can be verified,
 updated, or restored without redistributing game data.
+
+The executable compatibility delta is installed only on macOS. Windows keeps
+the original executable and its native fullscreen behavior.
 
 ## Command line
 
@@ -48,8 +54,9 @@ runtime:
 
 ```sh
 python3 build_deltas.py /path/to/japanese /path/to/current
-python3 build_release.py --version 1.0.0 --output /path/to/release.zip
+python3 build_release.py --version 1.1.0 --output /path/to/release.zip
 ```
 
 `delta_codec.py` uses content-defined chunks and split zlib literal streams.
-The build report records exact source and target hashes for all five archives.
+The build report records exact source and target hashes for all five archives
+and the macOS-only executable delta.

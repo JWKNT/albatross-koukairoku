@@ -76,11 +76,32 @@ class PatcherTests(unittest.TestCase):
         report = json.loads(report_path.read_text(encoding="utf-8"))
         self.assertEqual(report["format"], "albatross-complete-patcher-payload-v1")
         self.assertEqual(set(report["files"]), set(installer.PATCHES.values()))
-        payload = installer.manifests()
+        payload = installer.manifests(include_all=True)
         self.assertEqual(set(payload), set(installer.PATCHES))
         for details in payload.values():
             self.assertEqual(details["format"], "albatross-delta-v1")
             self.assertNotEqual(details["source_sha256"], details["target_sha256"])
+
+    def test_platform_patch_selection(self) -> None:
+        self.assertEqual(
+            set(installer.selected_patches("win32")),
+            set(installer.ARCHIVE_PATCHES),
+        )
+        self.assertEqual(
+            set(installer.selected_patches("darwin")),
+            set(installer.PATCHES),
+        )
+
+    def test_verified_fullscreen_executable_builder(self) -> None:
+        module_path = PATCHER / "build_macos_fullscreen_executable.py"
+        spec = importlib.util.spec_from_file_location("fullscreen_builder", module_path)
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        source_manifest = installer.manifests(include_all=True)[installer.GAME_EXE]
+        self.assertEqual(module.SOURCE_SHA256, source_manifest["source_sha256"])
+        self.assertEqual(module.TARGET_SHA256, source_manifest["target_sha256"])
 
 
 if __name__ == "__main__":
