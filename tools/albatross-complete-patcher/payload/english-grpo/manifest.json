@@ -1,0 +1,22 @@
+{
+  "format": "albatross-delta-v1",
+  "source_size": 87356,
+  "source_sha256": "a77ba688a8ff09f7a69bf07b44bed3b85f83bcccdcf0a6b3a738d14bafa98e6f",
+  "target_size": 86624,
+  "target_sha256": "f0fb4091183d05c3015b42c29bf3e51d15b6f0d06e525a4c69519645546be4b4",
+  "operations": [
+    [
+      "literal",
+      86624
+    ]
+  ],
+  "literal_bytes": 86624,
+  "copied_bytes": 0,
+  "parts": [
+    {
+      "name": "literals.zlib.001",
+      "size": 35276,
+      "sha256": "11a0af9c8344c98834a8265784ff02c36bc42579325354da4f50b924e0205e57"
+    }
+  ]
+}

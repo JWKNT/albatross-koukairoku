@@ -24,6 +24,14 @@ npm test
 
 The site is plain HTML, CSS, JavaScript, and JSON so GitHub Pages can serve it directly from the repository root.
 
+## Complete English game patch
+
+The repository includes a [one-click complete game patcher](tools/albatross-complete-patcher/README.md)
+that converts a verified fresh Japanese Windows copy into the current English
+build without distributing the original game. It installs the complete
+word-wrapped script, localized interface and gallery graphics, and horizontal
+English layout. Original archives are verified and retained for rollback.
+
 ## Disclaimer
 
 This is an unofficial, noncommercial fan project. The English text is a machine-assisted draft and may change as review continues. Please support the creators and own a legal Japanese copy of the game.
