@@ -1,0 +1,334 @@
+{
+  "format": "albatross-complete-patcher-payload-v1",
+  "files": {
+    "english-scr": {
+      "format": "albatross-delta-v1",
+      "source_size": 2811391,
+      "source_sha256": "df80ba8f676afe80d022c3c77062e23102662a63b017f5a2821cd23bef638938",
+      "target_size": 2954258,
+      "target_sha256": "a99007f0e7bcaaa0d240d68d7bfd2f9215210bb0b852c15745940baf7475766f",
+      "operations": [
+        [
+          "literal",
+          2954258
+        ]
+      ],
+      "literal_bytes": 2954258,
+      "copied_bytes": 0,
+      "parts": [
+        {
+          "name": "literals.zlib.001",
+          "size": 1025964,
+          "sha256": "6ee6b3caf7def12814f1cc30c29fb391cde712b5459d967d7b4c09baa8e6797b"
+        }
+      ]
+    },
+    "english-grps": {
+      "format": "albatross-delta-v1",
+      "source_size": 35177263,
+      "source_sha256": "68ce017f647e498239e45d8440b65a94447a8399130b9bc7b2217818fb4994ff",
+      "target_size": 35789598,
+      "target_sha256": "6165e96d32ad313fb7e5b100cb8a35ec89290b27bfe6607d0573e1d5f4b06bc9",
+      "operations": [
+        [
+          "literal",
+          18878
+        ],
+        [
+          "copy",
+          18878,
+          1019862
+        ],
+        [
+          "literal",
+          2602884
+        ],
+        [
+          "copy",
+          3321045,
+          1177338
+        ],
+        [
+          "copy",
+          3406383,
+          12327
+        ],
+        [
+          "copy",
+          4510710,
+          1498760
+        ],
+        [
+          "copy",
+          4917470,
+          35786
+        ],
+        [
+          "copy",
+          6045256,
+          26367
+        ],
+        [
+          "copy",
+          4979623,
+          32464
+        ],
+        [
+          "copy",
+          6104087,
+          7387298
+        ],
+        [
+          "copy",
+          13388985,
+          102400
+        ],
+        [
+          "copy",
+          13388985,
+          102400
+        ],
+        [
+          "copy",
+          13388985,
+          102400
+        ],
+        [
+          "copy",
+          13798585,
+          3534035
+        ],
+        [
+          "copy",
+          17212620,
+          120000
+        ],
+        [
+          "copy",
+          17212620,
+          120000
+        ],
+        [
+          "copy",
+          17212620,
+          120000
+        ],
+        [
+          "copy",
+          17212620,
+          120000
+        ],
+        [
+          "copy",
+          17212620,
+          120000
+        ],
+        [
+          "copy",
+          17212620,
+          120000
+        ],
+        [
+          "copy",
+          17212620,
+          120000
+        ],
+        [
+          "copy",
+          17212620,
+          120000
+        ],
+        [
+          "copy",
+          17212620,
+          120000
+        ],
+        [
+          "copy",
+          17212620,
+          120000
+        ],
+        [
+          "copy",
+          18532620,
+          357656
+        ],
+        [
+          "copy",
+          18770276,
+          120000
+        ],
+        [
+          "copy",
+          18770276,
+          120000
+        ],
+        [
+          "copy",
+          18770276,
+          120000
+        ],
+        [
+          "copy",
+          18770276,
+          120000
+        ],
+        [
+          "copy",
+          18770276,
+          120000
+        ],
+        [
+          "copy",
+          18770276,
+          120000
+        ],
+        [
+          "copy",
+          18770276,
+          120000
+        ],
+        [
+          "copy",
+          18770276,
+          120000
+        ],
+        [
+          "copy",
+          18770276,
+          120000
+        ],
+        [
+          "copy",
+          18770276,
+          120000
+        ],
+        [
+          "copy",
+          20090276,
+          13475031
+        ],
+        [
+          "literal",
+          1903712
+        ]
+      ],
+      "literal_bytes": 4525474,
+      "copied_bytes": 31264124,
+      "parts": [
+        {
+          "name": "literals.zlib.001",
+          "size": 3086962,
+          "sha256": "91e37a0a97a985eb1f8fb98ba300734ea0bce644af978baaac916e67db06754b"
+        }
+      ]
+    },
+    "english-grpo": {
+      "format": "albatross-delta-v1",
+      "source_size": 87356,
+      "source_sha256": "a77ba688a8ff09f7a69bf07b44bed3b85f83bcccdcf0a6b3a738d14bafa98e6f",
+      "target_size": 86624,
+      "target_sha256": "f0fb4091183d05c3015b42c29bf3e51d15b6f0d06e525a4c69519645546be4b4",
+      "operations": [
+        [
+          "literal",
+          86624
+        ]
+      ],
+      "literal_bytes": 86624,
+      "copied_bytes": 0,
+      "parts": [
+        {
+          "name": "literals.zlib.001",
+          "size": 35276,
+          "sha256": "11a0af9c8344c98834a8265784ff02c36bc42579325354da4f50b924e0205e57"
+        }
+      ]
+    },
+    "english-grpe": {
+      "format": "albatross-delta-v1",
+      "source_size": 378814661,
+      "source_sha256": "b05d0effdbfddca001e8ae13228db040590bfc662d21a8a6bd5a3cc1c0917a69",
+      "target_size": 379109897,
+      "target_sha256": "91d10751d50c213eceffcfcfd66aadb255dbae8fbd8665ea9c087937123cc657",
+      "operations": [
+        [
+          "literal",
+          41750
+        ],
+        [
+          "copy",
+          41750,
+          375146160
+        ],
+        [
+          "literal",
+          3908125
+        ],
+        [
+          "copy",
+          378800799,
+          13862
+        ]
+      ],
+      "literal_bytes": 3949875,
+      "copied_bytes": 375160022,
+      "parts": [
+        {
+          "name": "literals.zlib.001",
+          "size": 3439958,
+          "sha256": "74ccfe456e6db3e9719dec8ebb2df68d66f3af078e727a3ae9f94db977b60763"
+        }
+      ]
+    },
+    "english-grpo-ex": {
+      "format": "albatross-delta-v1",
+      "source_size": 7906348,
+      "source_sha256": "81d0f2ccc0207128a79b7cd909485b1ec92af42ab9594ac50e6083b199c2dc38",
+      "target_size": 7762533,
+      "target_sha256": "c76e7f8abbd1d1bac43e81b2343f058fe525ab523a924122068bdd01872c3082",
+      "operations": [
+        [
+          "literal",
+          46604
+        ],
+        [
+          "copy",
+          46604,
+          3366567
+        ],
+        [
+          "literal",
+          95140
+        ],
+        [
+          "copy",
+          3506991,
+          3613007
+        ],
+        [
+          "literal",
+          177858
+        ],
+        [
+          "copy",
+          7263363,
+          74960
+        ],
+        [
+          "literal",
+          388397
+        ]
+      ],
+      "literal_bytes": 707999,
+      "copied_bytes": 7054534,
+      "parts": [
+        {
+          "name": "literals.zlib.001",
+          "size": 546565,
+          "sha256": "ba675c9e0a1ce436f3a446ff49209f9526faa957512e0ac3b08a9447fa37df96"
+        }
+      ]
+    }
+  }
+}

@@ -110,3 +110,17 @@ test("all local page assets referenced by the shell exist", async () => {
     assert.ok((await read(path)).length > 1_000);
   }
 });
+
+test("repository exposes the complete verified game patcher", async () => {
+  const readme = await read("README.md");
+  assert.match(readme, /one-click complete game patcher/);
+  for (const path of [
+    "tools/albatross-complete-patcher/README.md",
+    "tools/albatross-complete-patcher/install_albatross_patch.py",
+    "tools/albatross-complete-patcher/delta_codec.py",
+    "tools/albatross-complete-patcher/Install Albatross English Patch.command",
+    "tools/albatross-complete-patcher/Install Albatross English Patch.bat",
+  ]) {
+    assert.ok((await read(path)).length > 100, `missing patcher component ${path}`);
+  }
+});
