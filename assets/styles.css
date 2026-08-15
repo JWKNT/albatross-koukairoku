@@ -170,6 +170,36 @@ mark { padding: 0; background: var(--mark); color: inherit; }
 .glossary-language p { margin: 0; font-size: 14px; line-height: 1.75; white-space: pre-line; overflow-wrap: anywhere; }
 .glossary-language.japanese p { line-height: 1.85; }
 
+.tools-shell { width: min(940px, calc(100% - 44px)); margin-inline: auto; }
+.tools-intro { padding: 34px 0 22px; border-bottom: 1px solid var(--line-strong); }
+.tools-intro h1 { margin: 2px 0 0; font-size: 27px; font-weight: 500; line-height: 1.2; }
+.tools-intro > p:last-child { max-width: 720px; margin: 9px 0 0; color: var(--muted-strong); }
+.tools-kicker,
+.tool-version { margin: 0; color: var(--faint); font: 10px/1.4 var(--mono); letter-spacing: .35px; text-transform: uppercase; }
+.tool-list { display: grid; gap: 14px; padding: 18px 0; }
+.tool-card { border: 1px solid var(--line-strong); background: var(--paper); }
+.tool-card-heading { display: flex; align-items: start; justify-content: space-between; gap: 18px; padding: 16px 18px 13px; border-bottom: 1px solid var(--line-strong); background: var(--surface); }
+.tool-card h2 { margin: 3px 0 0; color: var(--blue-dark); font-size: 19px; font-weight: 600; }
+.tool-status { flex: none; padding: 3px 7px; border: 1px solid var(--line-strong); color: var(--muted); font: 9px/1.4 var(--mono); letter-spacing: .3px; text-transform: uppercase; }
+.tool-card > p { max-width: 790px; margin: 0; padding: 16px 18px 8px; }
+.tool-steps { margin: 0; padding: 4px 28px 13px 42px; color: var(--muted-strong); }
+.tool-steps li { padding: 3px 0 3px 4px; }
+.tool-card code { padding: 1px 3px; background: var(--surface); color: var(--ink); font: 11px/1.45 var(--mono); overflow-wrap: anywhere; }
+.tool-actions { display: flex; align-items: center; gap: 9px; padding: 0 18px 17px; }
+.tool-actions a { min-height: 31px; padding: 5px 10px; border: 1px solid var(--line-strong); color: var(--blue-dark); font-size: 11px; line-height: 19px; text-decoration: none; }
+.tool-actions a:hover { border-color: var(--blue); color: var(--blue); }
+.tool-actions .primary-action { border-color: var(--blue); background: var(--surface-blue); }
+.tool-details { border-top: 1px solid var(--line); }
+.tool-details summary { padding: 9px 18px; color: var(--muted); cursor: pointer; font-size: 11px; }
+.tool-details[open] summary { border-bottom: 1px solid var(--line); color: var(--blue-dark); }
+.tool-details > p { margin: 0; padding: 12px 18px 0; color: var(--muted-strong); font-size: 12px; }
+.tool-details > p:last-child { padding-bottom: 13px; }
+.tool-hash { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 9px; align-items: baseline; }
+.tool-hash span { color: var(--faint); font: 9px/1.4 var(--mono); text-transform: uppercase; }
+.tools-note { margin-top: 2px; padding: 14px 17px; border-left: 2px solid var(--blue); background: var(--surface); }
+.tools-note h2 { margin: 0; font-size: 14px; font-weight: 600; }
+.tools-note p { margin: 4px 0 0; color: var(--muted-strong); font-size: 12px; }
+
 .empty-state { padding: 42px 0; text-align: center; }
 .empty-state h2 { margin: 0; font-size: 18px; font-weight: 500; }
 .empty-state p { margin: 5px 0 0; color: var(--muted); }
@@ -197,7 +227,7 @@ footer p { margin: 3px 0; }
 }
 
 @media (max-width: 650px) {
-  .site-header, .reader-shell, .glossary-shell, footer { width: min(100% - 28px, 1120px); }
+  .site-header, .reader-shell, .glossary-shell, .tools-shell, footer { width: min(100% - 28px, 1120px); }
   .site-header { padding-top: 14px; }
   .site-title { font-size: 20px; }
   .intro { display: block; padding-top: 20px; }
@@ -238,6 +268,16 @@ footer p { margin: 3px 0; }
   .glossary-comparison { grid-template-columns: 1fr; }
   .glossary-language { padding: 13px 14px; }
   .glossary-language.english { border-top: 1px solid var(--line-strong); border-left: 0; }
+  .tools-intro { padding-top: 24px; }
+  .tool-card-heading { padding-inline: 14px; }
+  .tool-card > p { padding-inline: 14px; }
+  .tool-steps { padding-right: 18px; padding-left: 34px; }
+  .tool-actions { align-items: stretch; flex-direction: column; padding-inline: 14px; }
+  .tool-actions a { text-align: center; }
+  .tool-details summary,
+  .tool-details > p { padding-inline: 14px; }
+  .tool-hash { display: block; }
+  .tool-hash span { display: block; margin-bottom: 4px; }
 }
 
 @media (max-width: 560px) {
