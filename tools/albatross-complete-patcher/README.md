@@ -8,6 +8,8 @@ into the complete English build. It installs:
 - English title-screen and Extras navigation in every interaction state;
 - localized gallery headings, captions, locked tile, and music titles;
 - the engine's native horizontal-writing preference;
+- the engine's small-font presentation, which keeps every English text block
+  above the bottom toolbar;
 - on macOS/CrossOver, a fullscreen compatibility fix that replaces the
   unavailable 800×600 display-mode switch with the largest centered 4:3
   borderless window that fits the current screen.
@@ -45,7 +47,8 @@ python3 install_albatross_patch.py --restore "/path/to/Albatross Koukairoku"
 
 Running the installer again verifies the retained Japanese sources and updates
 the English archives in place. Save progress is preserved. Restore changes only
-the two-byte writing-direction preference rather than replacing the save file.
+the writing-direction and font-size preference fields rather than replacing the
+save file.
 
 ## Maintainer workflow
 
@@ -54,7 +57,7 @@ runtime:
 
 ```sh
 python3 build_deltas.py /path/to/japanese /path/to/current
-python3 build_release.py --version 1.1.0 --output /path/to/release.zip
+python3 build_release.py --version 1.1.1 --output /path/to/release.zip
 ```
 
 `delta_codec.py` uses content-defined chunks and split zlib literal streams.

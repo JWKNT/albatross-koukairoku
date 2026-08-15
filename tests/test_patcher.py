@@ -29,13 +29,14 @@ class PatcherTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             installer.parse_dragged_path("")
 
-    def test_direction_patch_preserves_other_bytes(self) -> None:
+    def test_english_preferences_patch_preserves_other_bytes(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "rssave.dat"
             before = bytearray((index * 17) % 256 for index in range(0x900))
             before[installer.DIRECTION_OFFSET : installer.DIRECTION_OFFSET + 2] = b"\0\0"
+            before[installer.FONT_SIZE_OFFSET : installer.FONT_SIZE_OFFSET + 2] = b"\0\0"
             path.write_bytes(before)
-            installer.write_direction(path, installer.HORIZONTAL)
+            installer.write_english_preferences(path)
             after = path.read_bytes()
             self.assertEqual(len(after), len(before))
             self.assertEqual(
@@ -43,11 +44,32 @@ class PatcherTests(unittest.TestCase):
                 b"\x01\x00",
             )
             self.assertEqual(
+                after[installer.FONT_SIZE_OFFSET : installer.FONT_SIZE_OFFSET + 2],
+                b"\x02\x00",
+            )
+            self.assertEqual(
                 after[: installer.DIRECTION_OFFSET], before[: installer.DIRECTION_OFFSET]
             )
             self.assertEqual(
-                after[installer.DIRECTION_OFFSET + 2 :],
-                before[installer.DIRECTION_OFFSET + 2 :],
+                after[installer.FONT_SIZE_OFFSET + 2 :],
+                before[installer.FONT_SIZE_OFFSET + 2 :],
+            )
+
+    def test_single_preference_write_preserves_other_fields(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "rssave.dat"
+            before = bytearray((index * 13) % 256 for index in range(0x900))
+            before[installer.DIRECTION_OFFSET : installer.DIRECTION_OFFSET + 2] = b"\1\0"
+            before[installer.FONT_SIZE_OFFSET : installer.FONT_SIZE_OFFSET + 2] = b"\2\0"
+            path.write_bytes(before)
+            installer.write_preference(
+                path, installer.DIRECTION_OFFSET, installer.LARGE_FONT
+            )
+            after = path.read_bytes()
+            self.assertEqual(installer.read_direction(path), installer.LARGE_FONT)
+            self.assertEqual(installer.read_font_size(path), installer.SMALL_FONT)
+            self.assertEqual(
+                after[installer.FONT_SIZE_OFFSET :], before[installer.FONT_SIZE_OFFSET :]
             )
 
     def test_delta_round_trip_and_source_rejection(self) -> None:
