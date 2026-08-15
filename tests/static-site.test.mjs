@@ -124,3 +124,15 @@ test("repository exposes the complete verified game patcher", async () => {
     assert.ok((await read(path)).length > 100, `missing patcher component ${path}`);
   }
 });
+
+test("tools page mirrors the release download shell", async () => {
+  const reader = await read("index.html");
+  const tools = await read("tools.html");
+  assert.match(reader, /href="tools\.html">Tools<\/a>/);
+  assert.match(tools, /Albatross Koukairoku Tools/);
+  assert.match(tools, /id="downloads"/);
+  assert.match(tools, /class="tool-card"/);
+  assert.match(tools, /albatross-complete-patcher-v1\.1\.1\.zip/);
+  assert.match(tools, /releases\/tag\/albatross-english-patcher-v1\.1\.1/);
+  assert.match(tools, /1a7217de581800dc60febad6fd59a7e6596d6c97f1aee711053b696572f449a0/);
+});
