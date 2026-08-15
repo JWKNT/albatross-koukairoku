@@ -15,7 +15,7 @@ from pathlib import Path
 from delta_codec import apply_delta, sha256
 
 
-VERSION = "1.1.0"
+VERSION = "1.1.1"
 PATCHER = Path(__file__).resolve().parent
 PAYLOAD = PATCHER / "payload"
 GAME_EXE = "信天翁航海録.exe"
@@ -23,7 +23,11 @@ STATE_NAME = "AlbatrossEnglish"
 STAGING_NAME = ".albatross-patcher-staging"
 SAVE_RELATIVE = Path("save/rssave.dat")
 DIRECTION_OFFSET = 0x84A
+FONT_SIZE_OFFSET = 0x84C
 HORIZONTAL = 1
+LARGE_FONT = 0
+MEDIUM_FONT = 1
+SMALL_FONT = 2
 ARCHIVE_PATCHES = {
     "scr.xfl": "english-scr",
     "grps.xfl": "english-grps",
@@ -96,7 +100,7 @@ def validate_game_shell(game: Path) -> None:
         if not (game / filename).is_file():
             raise ValueError(f"Game archive is missing: {game / filename}")
     save = game / SAVE_RELATIVE
-    if not save.is_file() or save.stat().st_size < DIRECTION_OFFSET + 2:
+    if not save.is_file() or save.stat().st_size < FONT_SIZE_OFFSET + 2:
         raise ValueError(f"Game preferences are missing or unsupported: {save}")
 
 
@@ -156,25 +160,48 @@ def archive_state(
     return state
 
 
-def read_direction(path: Path) -> int:
+def read_preference(path: Path, offset: int) -> int:
     data = path.read_bytes()
-    if len(data) < DIRECTION_OFFSET + 2:
+    if len(data) < offset + 2:
         raise ValueError(f"Preferences file is too short: {path}")
-    return int.from_bytes(data[DIRECTION_OFFSET : DIRECTION_OFFSET + 2], "little")
+    return int.from_bytes(data[offset : offset + 2], "little")
 
 
-def write_direction(path: Path, value: int) -> None:
+def write_preference(path: Path, offset: int, value: int) -> None:
     data = bytearray(path.read_bytes())
-    if len(data) < DIRECTION_OFFSET + 2:
+    if len(data) < offset + 2:
         raise ValueError(f"Preferences file is too short: {path}")
-    data[DIRECTION_OFFSET : DIRECTION_OFFSET + 2] = int(value).to_bytes(2, "little")
+    data[offset : offset + 2] = int(value).to_bytes(2, "little")
     temporary = path.with_name(path.name + ".albatross-installing")
     if temporary.exists():
         raise FileExistsError(f"Temporary preference file already exists: {temporary}")
     temporary.write_bytes(data)
     os.replace(temporary, path)
-    if read_direction(path) != value:
-        raise IOError(f"Writing-direction update failed: {path}")
+    if read_preference(path, offset) != value:
+        raise IOError(f"Preference update failed at 0x{offset:X}: {path}")
+
+
+def read_direction(path: Path) -> int:
+    return read_preference(path, DIRECTION_OFFSET)
+
+
+def read_font_size(path: Path) -> int:
+    return read_preference(path, FONT_SIZE_OFFSET)
+
+
+def write_english_preferences(path: Path) -> None:
+    data = bytearray(path.read_bytes())
+    if len(data) < FONT_SIZE_OFFSET + 2:
+        raise ValueError(f"Preferences file is too short: {path}")
+    data[DIRECTION_OFFSET : DIRECTION_OFFSET + 2] = HORIZONTAL.to_bytes(2, "little")
+    data[FONT_SIZE_OFFSET : FONT_SIZE_OFFSET + 2] = SMALL_FONT.to_bytes(2, "little")
+    temporary = path.with_name(path.name + ".albatross-installing")
+    if temporary.exists():
+        raise FileExistsError(f"Temporary preference file already exists: {temporary}")
+    temporary.write_bytes(data)
+    os.replace(temporary, path)
+    if read_direction(path) != HORIZONTAL or read_font_size(path) != SMALL_FONT:
+        raise IOError(f"English text preferences update failed: {path}")
 
 
 def build_staging(
@@ -211,6 +238,7 @@ def install_fresh(
     if (game / STATE_NAME).exists():
         raise ValueError(f"Existing patch metadata blocks a fresh install: {game / STATE_NAME}")
     original_direction = read_direction(game / SAVE_RELATIVE)
+    original_font_size = read_font_size(game / SAVE_RELATIVE)
     staging = game / STAGING_NAME
     patches = selected_patches()
     sources = {filename: game / filename for filename in patches}
@@ -224,9 +252,14 @@ def install_fresh(
             os.replace(game / filename, backup / f"{filename}.original")
         for filename in patches:
             os.replace(staging / filename, game / filename)
-        write_direction(game / SAVE_RELATIVE, HORIZONTAL)
+        write_english_preferences(game / SAVE_RELATIVE)
         report = installation_report(
-            game, payload, results, original_direction, operation="fresh-install"
+            game,
+            payload,
+            results,
+            original_direction,
+            original_font_size,
+            operation="fresh-install",
         )
         (state / "install-report.json").write_text(
             json.dumps(report, indent=2) + "\n", encoding="utf-8"
@@ -236,7 +269,8 @@ def install_fresh(
     except Exception:
         if not committed:
             rollback_fresh_commit(game)
-            write_direction(game / SAVE_RELATIVE, original_direction)
+            write_preference(game / SAVE_RELATIVE, DIRECTION_OFFSET, original_direction)
+            write_preference(game / SAVE_RELATIVE, FONT_SIZE_OFFSET, original_font_size)
         raise
     finally:
         if staging.exists():
@@ -255,12 +289,21 @@ def update_installed(
         else {}
     )
     original_direction = int(previous_report.get("original_direction", 0))
+    original_font_size = int(
+        previous_report.get("original_font_size", read_font_size(game / SAVE_RELATIVE))
+    )
     current_direction = read_direction(game / SAVE_RELATIVE)
+    current_font_size = read_font_size(game / SAVE_RELATIVE)
     state = archive_state(game, payload)
     if set(state.values()) == {"english-current"}:
-        write_direction(game / SAVE_RELATIVE, HORIZONTAL)
+        write_english_preferences(game / SAVE_RELATIVE)
         report = installation_report(
-            game, payload, {}, original_direction, operation="already-current"
+            game,
+            payload,
+            {},
+            original_direction,
+            original_font_size,
+            operation="already-current",
         )
         report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         print("The English patch files are already current.")
@@ -276,9 +319,14 @@ def update_installed(
             os.replace(game / filename, rollback / filename)
             replaced.append(filename)
             os.replace(staging / filename, game / filename)
-        write_direction(game / SAVE_RELATIVE, HORIZONTAL)
+        write_english_preferences(game / SAVE_RELATIVE)
         report = installation_report(
-            game, payload, results, original_direction, operation="update"
+            game,
+            payload,
+            results,
+            original_direction,
+            original_font_size,
+            operation="update",
         )
         report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         return report
@@ -288,7 +336,9 @@ def update_installed(
             if previous.is_file():
                 os.replace(previous, game / filename)
         if read_direction(game / SAVE_RELATIVE) != current_direction:
-            write_direction(game / SAVE_RELATIVE, current_direction)
+            write_preference(game / SAVE_RELATIVE, DIRECTION_OFFSET, current_direction)
+        if read_font_size(game / SAVE_RELATIVE) != current_font_size:
+            write_preference(game / SAVE_RELATIVE, FONT_SIZE_OFFSET, current_font_size)
         raise
     finally:
         if staging.exists():
@@ -300,6 +350,7 @@ def installation_report(
     payload: dict[str, dict[str, object]],
     results: dict[str, dict[str, object]],
     original_direction: int,
+    original_font_size: int,
     *,
     operation: str,
 ) -> dict[str, object]:
@@ -313,9 +364,12 @@ def installation_report(
         "operation": operation,
         "game": str(game),
         "writing_direction": "horizontal",
+        "font_size": "small",
         "macos_fullscreen_compatibility": sys.platform == "darwin",
         "writing_direction_offset": f"0x{DIRECTION_OFFSET:X}",
+        "font_size_offset": f"0x{FONT_SIZE_OFFSET:X}",
         "original_direction": original_direction,
+        "original_font_size": original_font_size,
         "files": files,
         "delta_targets": {
             filename: details["target_sha256"] for filename, details in payload.items()
@@ -332,11 +386,14 @@ def verify_installed(game: Path) -> dict[str, object]:
     issues = [filename for filename, value in state.items() if value != "english-current"]
     if read_direction(game / SAVE_RELATIVE) != HORIZONTAL:
         issues.append(str(SAVE_RELATIVE))
+    if read_font_size(game / SAVE_RELATIVE) != SMALL_FONT:
+        issues.append(f"{SAVE_RELATIVE}:font-size")
     result = {
         "status": "CLEAN" if not issues else "FAILED",
         "game": str(game),
         "files": state,
         "writing_direction": read_direction(game / SAVE_RELATIVE),
+        "font_size": read_font_size(game / SAVE_RELATIVE),
         "issues": issues,
     }
     if issues:
@@ -357,7 +414,9 @@ def restore(game: Path) -> dict[str, object]:
         else {}
     )
     original_direction = int(report.get("original_direction", 0))
+    original_font_size = int(report.get("original_font_size", LARGE_FONT))
     current_direction = read_direction(game / SAVE_RELATIVE)
+    current_font_size = read_font_size(game / SAVE_RELATIVE)
     staging = game / ".albatross-restore-staging"
     if staging.exists():
         raise FileExistsError(f"Remove interrupted restore staging first: {staging}")
@@ -374,7 +433,8 @@ def restore(game: Path) -> dict[str, object]:
             os.replace(game / filename, rollback / filename)
             replaced.append(filename)
             os.replace(staging / filename, game / filename)
-        write_direction(game / SAVE_RELATIVE, original_direction)
+        write_preference(game / SAVE_RELATIVE, DIRECTION_OFFSET, original_direction)
+        write_preference(game / SAVE_RELATIVE, FONT_SIZE_OFFSET, original_font_size)
         retained = game / f"{STATE_NAME}.patcher-backup-{time.strftime('%Y%m%d-%H%M%S')}"
         if retained.exists():
             raise FileExistsError(f"Restore metadata destination already exists: {retained}")
@@ -383,6 +443,7 @@ def restore(game: Path) -> dict[str, object]:
             "status": "RESTORED",
             "game": str(game),
             "writing_direction": original_direction,
+            "font_size": original_font_size,
             "retained_metadata": str(retained),
         }
     except Exception:
@@ -391,7 +452,9 @@ def restore(game: Path) -> dict[str, object]:
             if previous.is_file():
                 os.replace(previous, game / filename)
         if read_direction(game / SAVE_RELATIVE) != current_direction:
-            write_direction(game / SAVE_RELATIVE, current_direction)
+            write_preference(game / SAVE_RELATIVE, DIRECTION_OFFSET, current_direction)
+        if read_font_size(game / SAVE_RELATIVE) != current_font_size:
+            write_preference(game / SAVE_RELATIVE, FONT_SIZE_OFFSET, current_font_size)
         raise
     finally:
         if staging.exists():
