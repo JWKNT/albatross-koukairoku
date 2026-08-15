@@ -45,8 +45,9 @@ class PatcherTests(unittest.TestCase):
             )
             self.assertEqual(
                 after[installer.FONT_SIZE_OFFSET : installer.FONT_SIZE_OFFSET + 2],
-                b"\x02\x00",
+                b"\x01\x00",
             )
+            self.assertEqual(installer.read_font_size(path), installer.MEDIUM_FONT)
             self.assertEqual(
                 after[: installer.DIRECTION_OFFSET], before[: installer.DIRECTION_OFFSET]
             )
