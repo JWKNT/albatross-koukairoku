@@ -8,8 +8,8 @@ into the complete English build. It installs:
 - English title-screen and Extras navigation in every interaction state;
 - localized gallery headings, captions, locked tile, and music titles;
 - the engine's native horizontal-writing preference;
-- the engine's small-font presentation, which keeps every English text block
-  above the bottom toolbar;
+- the engine's medium-font presentation, balancing readability with the space
+  needed for long English text blocks;
 - on macOS/CrossOver, a fullscreen compatibility fix that replaces the
   unavailable 800×600 display-mode switch with the largest centered 4:3
   borderless window that fits the current screen.
@@ -57,7 +57,7 @@ runtime:
 
 ```sh
 python3 build_deltas.py /path/to/japanese /path/to/current
-python3 build_release.py --version 1.1.1 --output /path/to/release.zip
+python3 build_release.py --version 1.1.2 --output /path/to/release.zip
 ```
 
 `delta_codec.py` uses content-defined chunks and split zlib literal streams.

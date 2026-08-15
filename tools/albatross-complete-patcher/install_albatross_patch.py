@@ -15,7 +15,7 @@ from pathlib import Path
 from delta_codec import apply_delta, sha256
 
 
-VERSION = "1.1.1"
+VERSION = "1.1.2"
 PATCHER = Path(__file__).resolve().parent
 PAYLOAD = PATCHER / "payload"
 GAME_EXE = "信天翁航海録.exe"
@@ -28,6 +28,7 @@ HORIZONTAL = 1
 LARGE_FONT = 0
 MEDIUM_FONT = 1
 SMALL_FONT = 2
+ENGLISH_FONT_SIZE = MEDIUM_FONT
 ARCHIVE_PATCHES = {
     "scr.xfl": "english-scr",
     "grps.xfl": "english-grps",
@@ -194,13 +195,15 @@ def write_english_preferences(path: Path) -> None:
     if len(data) < FONT_SIZE_OFFSET + 2:
         raise ValueError(f"Preferences file is too short: {path}")
     data[DIRECTION_OFFSET : DIRECTION_OFFSET + 2] = HORIZONTAL.to_bytes(2, "little")
-    data[FONT_SIZE_OFFSET : FONT_SIZE_OFFSET + 2] = SMALL_FONT.to_bytes(2, "little")
+    data[FONT_SIZE_OFFSET : FONT_SIZE_OFFSET + 2] = ENGLISH_FONT_SIZE.to_bytes(
+        2, "little"
+    )
     temporary = path.with_name(path.name + ".albatross-installing")
     if temporary.exists():
         raise FileExistsError(f"Temporary preference file already exists: {temporary}")
     temporary.write_bytes(data)
     os.replace(temporary, path)
-    if read_direction(path) != HORIZONTAL or read_font_size(path) != SMALL_FONT:
+    if read_direction(path) != HORIZONTAL or read_font_size(path) != ENGLISH_FONT_SIZE:
         raise IOError(f"English text preferences update failed: {path}")
 
 
@@ -364,7 +367,7 @@ def installation_report(
         "operation": operation,
         "game": str(game),
         "writing_direction": "horizontal",
-        "font_size": "small",
+        "font_size": "medium",
         "macos_fullscreen_compatibility": sys.platform == "darwin",
         "writing_direction_offset": f"0x{DIRECTION_OFFSET:X}",
         "font_size_offset": f"0x{FONT_SIZE_OFFSET:X}",
@@ -386,7 +389,7 @@ def verify_installed(game: Path) -> dict[str, object]:
     issues = [filename for filename, value in state.items() if value != "english-current"]
     if read_direction(game / SAVE_RELATIVE) != HORIZONTAL:
         issues.append(str(SAVE_RELATIVE))
-    if read_font_size(game / SAVE_RELATIVE) != SMALL_FONT:
+    if read_font_size(game / SAVE_RELATIVE) != ENGLISH_FONT_SIZE:
         issues.append(f"{SAVE_RELATIVE}:font-size")
     result = {
         "status": "CLEAN" if not issues else "FAILED",

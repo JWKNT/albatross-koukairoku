@@ -132,7 +132,7 @@ test("tools page mirrors the release download shell", async () => {
   assert.match(tools, /Albatross Koukairoku Tools/);
   assert.match(tools, /id="downloads"/);
   assert.match(tools, /class="tool-card"/);
-  assert.match(tools, /albatross-complete-patcher-v1\.1\.1\.zip/);
-  assert.match(tools, /releases\/tag\/albatross-english-patcher-v1\.1\.1/);
-  assert.match(tools, /1a7217de581800dc60febad6fd59a7e6596d6c97f1aee711053b696572f449a0/);
+  assert.match(tools, /albatross-complete-patcher-v1\.1\.2\.zip/);
+  assert.match(tools, /releases\/tag\/albatross-english-patcher-v1\.1\.2/);
+  assert.match(tools, /bcfd7dd8572f2413dac3dc9e653c864caf6d15c940a69325cac15b5c659265ce/);
 });
