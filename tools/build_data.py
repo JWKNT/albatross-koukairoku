@@ -13,7 +13,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_TRANSLATION_ROOT = Path("/Users/jw/Desktop/bin/albatross_MTL")
+DEFAULT_TRANSLATION_ROOT = Path("/Users/jw/Desktop/local-work/albatross_MTL")
 
 ROUTES = [
     {

@@ -15,7 +15,7 @@ A static, route-aware Japanese/English reader for the current machine-assisted f
 
 ## Refreshing the site data
 
-The generator reads the working translation at `/Users/jw/Desktop/bin/albatross_MTL` by default:
+The generator reads the working translation at `/Users/jw/Desktop/local-work/albatross_MTL` by default:
 
 ```sh
 npm run build:data
