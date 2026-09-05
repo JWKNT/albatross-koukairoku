@@ -20,5 +20,10 @@
 }
 
 @media (max-width: 650px) {
+  .reader-controls { grid-template-columns: minmax(0, 1fr) auto; }
   .route-control { grid-column: 1 / -1; }
+  .chapter-control { grid-column: 1 / -1; }
+  .scope-control { grid-column: 1 / -1; grid-row: auto; }
+  .search-control { grid-column: 1; grid-row: auto; }
+  .clear-search { grid-column: 2; grid-row: auto; }
 }
