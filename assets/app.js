@@ -49,6 +49,13 @@
     return state.index.chapters.find((chapter) => chapter.slug === slug);
   }
 
+  function chapterLabel(meta) {
+    const voyage = `${routeMeta(meta.route).label} · `;
+    return meta.title.startsWith(voyage)
+      ? meta.title.slice(voyage.length)
+      : meta.title.replace(/^.+? Ending · /, "Ending · ");
+  }
+
   function cleanText(value) {
     return String(value || "").replace(/<[^>]+>/g, "");
   }
@@ -207,7 +214,7 @@
     const meta = chapterMeta();
     const route = routeMeta();
     const adjacent = adjacentChapters();
-    elements.chapterValue.textContent = `${meta.title} · ${number.format(meta.lineCount)} lines`;
+    elements.chapterValue.textContent = chapterLabel(meta);
     elements.previousChapter.disabled = !adjacent.previous;
     elements.nextChapter.disabled = !adjacent.next;
     elements.previousChapter.setAttribute(
@@ -222,6 +229,7 @@
       option.setAttribute("aria-selected", String(option.dataset.slug === state.chapter));
     });
     elements.routeSelect.value = route.id;
+    window.JehlpUI?.enhance(elements.routeSelect);
     updateEndNavigation();
   }
 
@@ -244,8 +252,11 @@
     for (const route of state.index.routes) {
       const group = document.createElement("section");
       group.className = "chapter-menu-group";
+      group.setAttribute("role", "group");
+      group.setAttribute("aria-labelledby", `chapter-route-${route.id}`);
       const heading = document.createElement("h3");
       heading.className = "chapter-menu-heading";
+      heading.id = `chapter-route-${route.id}`;
       heading.textContent = route.label;
       group.append(heading);
 
@@ -257,8 +268,11 @@
         option.dataset.slug = slug;
         option.setAttribute("role", "option");
         option.setAttribute("aria-selected", "false");
-        option.textContent = `${slug} · ${meta.title}`;
-        option.addEventListener("click", () => selectChapter(slug));
+        option.textContent = chapterLabel(meta);
+        option.addEventListener("click", () => {
+          closeChapterMenu({ restoreFocus: true });
+          selectChapter(slug);
+        });
         group.append(option);
       }
       fragment.append(group);
@@ -274,6 +288,7 @@
       elements.routeSelect.append(option);
     }
     elements.routeSelect.value = state.route;
+    window.JehlpUI?.enhance(elements.routeSelect);
   }
 
   function makeLineArticle(line, meta, terms, includeChapter) {
@@ -392,6 +407,28 @@
     elements.chapterButton.addEventListener("click", () => {
       if (elements.chapterMenu.hidden) openChapterMenu();
       else closeChapterMenu({ restoreFocus: true });
+    });
+    elements.chapterButton.addEventListener("keydown", (event) => {
+      if (["ArrowDown", "ArrowUp"].includes(event.key) && elements.chapterMenu.hidden) {
+        event.preventDefault();
+        openChapterMenu();
+      }
+    });
+    elements.chapterMenuOptions.addEventListener("keydown", (event) => {
+      const options = [...elements.chapterMenuOptions.querySelectorAll(".chapter-menu-option")];
+      const position = options.indexOf(document.activeElement);
+      let target;
+      if (["ArrowDown", "ArrowRight"].includes(event.key)) target = options[(position + 1) % options.length];
+      else if (["ArrowUp", "ArrowLeft"].includes(event.key)) target = options[(position - 1 + options.length) % options.length];
+      else if (event.key === "Home") target = options[0];
+      else if (event.key === "End") target = options.at(-1);
+      if (target) {
+        event.preventDefault();
+        target.focus();
+      }
+    });
+    elements.chapterPicker.addEventListener("focusout", (event) => {
+      if (!elements.chapterPicker.contains(event.relatedTarget)) closeChapterMenu();
     });
     elements.previousChapter.addEventListener("click", () => {
       const slug = adjacentChapters().previous;

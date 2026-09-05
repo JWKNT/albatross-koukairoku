@@ -1,5 +1,5 @@
-.reader-controls { grid-template-columns: minmax(130px, .45fr) minmax(260px, .85fr) auto minmax(220px, 1fr) auto; }
-.route-control { display: grid; gap: 3px; }
+.reader-controls { grid-template-columns: minmax(200px, .6fr) minmax(320px, 1fr) auto minmax(220px, 1fr) auto; }
+.route-control { display: grid; gap: 6px; min-width: 0; }
 .reader-controls select { width: 100%; min-height: var(--control-size, 2.25rem); padding: 4px 24px 4px 8px; border: 1px solid var(--line-strong); background-color: var(--paper); color: var(--ink); font: var(--text-ui, .875rem)/1.4 var(--sans); }
 .choice-line { background: var(--surface-blue); }
 .language-column { justify-content: flex-start; }
@@ -9,8 +9,8 @@
 .english-reader-mode .reader-background img { aspect-ratio: 4 / 3; object-fit: contain; }
 .end-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
 
-@media (max-width: 860px) {
-  .reader-controls { grid-template-columns: minmax(150px, .45fr) minmax(250px, 1fr) auto; }
+@media (max-width: 1100px) {
+  .reader-controls { grid-template-columns: minmax(200px, .6fr) minmax(320px, 1fr) auto; }
   .route-control { grid-column: 1; }
   .chapter-control { grid-column: 2 / -1; }
   .scope-control { grid-column: 1 / -1; grid-row: 2; }

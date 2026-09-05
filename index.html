@@ -16,14 +16,16 @@
     <link rel="icon" href="https://jehlp.net/site-theme/v2/favicons/albatross-koukairoku.png" type="image/png">
     <script src="https://jehlp.net/site-theme/v2/theme.js"></script>
     <link rel="stylesheet" href="https://jehlp.net/site-theme/v2/base.css">
+    <link rel="stylesheet" href="https://jehlp.net/site-theme/v2/components.css">
     <link rel="stylesheet" href="https://jehlp.net/site-theme/v2/reader.css">
-    <link rel="stylesheet" href="assets/styles.css?v=20260814.1">
+    <link rel="stylesheet" href="assets/styles.css?v=20260905-controls">
+    <script src="https://jehlp.net/site-theme/v2/components.js" defer></script>
   </head>
   <body data-site-tone="teal">
     <a class="skip-link" href="#script-lines">Skip to script</a>
 
     <header class="site-header site-header--identity">
-      <div class="site-brand"><span class="site-mark" aria-hidden="true">✣</span><a class="site-title" href="./">Albatross Koukairoku</a></div>
+      <div class="site-brand"><img class="site-mark" src="https://jehlp.net/site-theme/v2/marks/albatross-koukairoku.png" width="32" height="32" alt=""><a class="site-title" href="./">Albatross Koukairoku</a></div>
       <nav aria-label="Site links">
         <a href="./" aria-current="page">Reader</a>
         <a href="tools.html">Tools</a>
@@ -52,7 +54,7 @@
       <section class="reader-controls" id="reader-controls" aria-label="Reader controls">
         <label class="route-control" for="route-select">
           <span>Voyage</span>
-          <select id="route-select" aria-label="Voyage"></select>
+          <select id="route-select" aria-label="Voyage" data-ui-select></select>
         </label>
 
         <div class="chapter-control">
@@ -132,6 +134,6 @@
       </article>
     </template>
 
-    <script src="assets/app.js?v=20260809.3"></script>
+    <script src="assets/app.js?v=20260905-controls"></script>
   </body>
 </html>

@@ -12,9 +12,45 @@ test("page exposes the minimal route-aware reader controls", async () => {
   assert.match(html, /href="https:\/\/jehlp\.net\/site-theme\/v2\/reader\.css"/);
   assert.match(html, /src="https:\/\/jehlp\.net\/site-theme\/v2\/theme\.js"/);
   assert.match(html, /id="route-select"/);
+  assert.match(html, /id="route-select"[^>]*data-ui-select/);
+  assert.match(html, /href="https:\/\/jehlp\.net\/site-theme\/v2\/components\.css"/);
+  assert.match(html, /src="https:\/\/jehlp\.net\/site-theme\/v2\/components\.js"/);
   assert.match(html, /value="route"/);
   assert.match(html, /English reader/);
   assert.doesNotMatch(html, /id="route-map"/);
+});
+
+test("chapter controls omit display-only identifiers without changing chapter data or routes", async () => {
+  const script = await read("assets/app.js");
+  const index = JSON.parse(await read("data/index.json"));
+  const labelSource = script.match(/function chapterLabel\(meta\) \{[\s\S]*?\n  \}/)?.[0];
+  assert.ok(labelSource, "chapter labels are formatted separately from source data");
+  const chapterLabel = new Function("routeMeta", `${labelSource}; return chapterLabel;`)(
+    (id) => index.routes.find((route) => route.id === id),
+  );
+  assert.equal(chapterLabel(index.chapters[0]), "Chapter 01");
+  assert.equal(chapterLabel(index.chapters.find((chapter) => chapter.slug === "2014")), "Ending · Do not release her");
+  for (const meta of index.chapters) {
+    assert.doesNotMatch(chapterLabel(meta), /^\d{4}\b/);
+    assert.ok(chapterLabel(meta).length > 0);
+  }
+  assert.match(script, /option\.textContent = chapterLabel\(meta\)/);
+  assert.match(script, /elements\.chapterValue\.textContent = chapterLabel\(meta\)/);
+  assert.match(script, /option\.dataset\.slug = slug/);
+  assert.match(script, /url\.searchParams\.set\("chapter", state\.chapter\)/);
+  assert.match(script, /elements\.chapterTitle\.textContent = meta\.title/);
+  assert.match(script, /window\.JehlpUI\?\.enhance\(elements\.routeSelect\)/);
+});
+
+test("chapter picker supports directional keys and returns focus after selection", async () => {
+  const script = await read("assets/app.js");
+  assert.match(script, /elements\.chapterButton\.addEventListener\("keydown"/);
+  assert.match(script, /\["ArrowDown", "ArrowRight"\]/);
+  assert.match(script, /\["ArrowUp", "ArrowLeft"\]/);
+  assert.match(script, /event\.key === "Home"/);
+  assert.match(script, /event\.key === "End"/);
+  assert.match(script, /closeChapterMenu\(\{ restoreFocus: true \}\);\s*selectChapter\(slug\)/);
+  assert.match(script, /elements\.chapterPicker\.addEventListener\("focusout"/);
 });
 
 test("empty URL hashes cannot trigger the chapter-load error state", async () => {
