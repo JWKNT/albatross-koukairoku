@@ -19,15 +19,14 @@
     <link rel="stylesheet" href="https://jehlp.net/site-theme/v2/reader.css">
     <link rel="stylesheet" href="assets/styles.css?v=20260814.1">
   </head>
-  <body>
+  <body data-site-tone="teal">
     <a class="skip-link" href="#script-lines">Skip to script</a>
 
-    <header class="site-header">
-      <a class="site-title" href="./">Albatross Koukairoku</a>
+    <header class="site-header site-header--identity">
+      <div class="site-brand"><span class="site-mark" aria-hidden="true">✣</span><a class="site-title" href="./">Albatross Koukairoku</a></div>
       <nav aria-label="Site links">
         <a href="./" aria-current="page">Reader</a>
         <a href="tools.html">Tools</a>
-        <a href="https://jehlp.net/">Projects</a>
         <button class="theme-toggle" id="theme-toggle" type="button" data-theme-toggle aria-label="Use dark theme" aria-pressed="false">◐</button>
       </nav>
     </header>
@@ -36,7 +35,7 @@
       <section class="intro" aria-labelledby="page-title">
         <div>
           <h1 id="page-title">Script reader</h1>
-          <p>Japanese source beside the current English machine-assisted fan translation. Five voyages, including each route ending.</p>
+          <p>Machine-assisted fan translation · five voyages</p>
         </div>
         <dl class="quick-stats" aria-label="Translation coverage">
           <div><dt>Chapters</dt><dd id="chapter-count">—</dd></div>
@@ -46,7 +45,7 @@
       </section>
 
       <nav class="view-switcher" aria-label="Reading mode">
-        <button id="parallel-mode" type="button" aria-pressed="true">JP / EN comparison</button>
+        <button id="parallel-mode" type="button" aria-pressed="true">JP / EN</button>
         <button id="english-mode" type="button" aria-pressed="false">English reader</button>
       </nav>
 
@@ -75,14 +74,14 @@
         </div>
 
         <fieldset class="scope-control">
-          <legend>Search</legend>
-          <label><input type="radio" name="search-scope" value="chapter" checked> This chapter</label>
-          <label><input type="radio" name="search-scope" value="route"> This voyage</label>
-          <label><input type="radio" name="search-scope" value="all"> All chapters</label>
+          <legend>Search scope</legend>
+          <label><input type="radio" name="search-scope" value="chapter" checked> Chapter</label>
+          <label><input type="radio" name="search-scope" value="route"> Voyage</label>
+          <label><input type="radio" name="search-scope" value="all"> All</label>
         </fieldset>
 
         <label class="search-control" for="script-search">
-          <span>JP, EN, speaker, or line ID</span>
+          <span>Text, speaker, or line ID</span>
           <input id="script-search" type="search" autocomplete="off" placeholder="Search this chapter" spellcheck="false">
         </label>
 
@@ -109,7 +108,7 @@
         <div class="end-actions" id="end-actions"></div>
       </nav>
 
-      <a class="back-to-controls" href="#reader-controls">Back to controls ↑</a>
+      <a class="back-to-controls" href="#reader-controls">Controls ↑</a>
     </main>
 
     <footer>
