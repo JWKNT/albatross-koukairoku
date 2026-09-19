@@ -1,6 +1,6 @@
 .reader-controls { grid-template-columns: minmax(200px, .6fr) minmax(320px, 1fr) auto minmax(220px, 1fr) auto; }
 .route-control { display: grid; gap: 6px; min-width: 0; }
-.reader-controls select { width: 100%; min-height: var(--control-size, 2.25rem); padding: 4px 24px 4px 8px; border: 1px solid var(--line-strong); background-color: var(--paper); color: var(--ink); font: var(--text-ui, .875rem)/1.4 var(--sans); }
+.reader-controls select { width: 100%; min-height: var(--control-size, 2.25rem); padding: 4px 24px 4px 8px; border: 1px solid var(--line-strong); background-color: var(--paper); color: var(--ink); font: var(--text-ui, .875rem)/1.4 var(--ui, var(--serif)); }
 .choice-line { background: var(--surface-blue); }
 .language-column { justify-content: flex-start; }
 .line-text { overflow-wrap: anywhere; }
