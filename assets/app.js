@@ -106,10 +106,14 @@
 
   function loadChapter(slug) {
     if (!state.cache.has(slug)) {
-      state.cache.set(
-        slug,
-        fetchJson(`data/chapters/${encodeURIComponent(slug)}.json?v=${encodeURIComponent(state.index.generatedAt)}`),
-      );
+      const request = fetchJson(
+        `data/chapters/${encodeURIComponent(slug)}.json?v=${encodeURIComponent(state.index.generatedAt)}`,
+      ).catch((error) => {
+        // An interrupted request must not poison this chapter until a page reload.
+        if (state.cache.get(slug) === request) state.cache.delete(slug);
+        throw error;
+      });
+      state.cache.set(slug, request);
     }
     return state.cache.get(slug);
   }
@@ -372,9 +376,12 @@
         elements.resultStatus.textContent = capped;
       }
       updateChapterControls();
+      elements.emptyState.querySelector("h2").textContent = "No matching lines";
+      elements.emptyState.querySelector("p").textContent = "Try a broader search or another chapter.";
       const hashTarget = window.location.hash ? document.querySelector(window.location.hash) : null;
       hashTarget?.scrollIntoView({ block: "center" });
     } catch (error) {
+      if (token !== state.searchToken) return;
       elements.scriptLines.replaceChildren();
       elements.emptyState.hidden = false;
       elements.emptyState.querySelector("h2").textContent = "The script could not be loaded";
@@ -473,13 +480,14 @@
   }
 
   async function initialize() {
+    const params = new URLSearchParams(window.location.search);
+    elements.search.value = params.get("q") || "";
     try {
       state.index = await fetchJson("data/index.json");
-      const params = new URLSearchParams(window.location.search);
       const requested = params.get("chapter");
       state.chapter = chapterMeta(requested) ? requested : state.index.chapters[0].slug;
       state.route = chapterMeta().route;
-      state.query = params.get("q") || "";
+      state.query = elements.search.value;
       state.scope = ["chapter", "route", "all"].includes(params.get("scope")) ? params.get("scope") : "chapter";
       const savedMode = localStorage.getItem("albatross-reader-mode");
       state.mode = params.get("mode") === "en" || (!params.has("mode") && savedMode === "english") ? "english" : "parallel";
