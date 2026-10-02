@@ -118,8 +118,20 @@
     return state.cache.get(slug);
   }
 
+  function fragmentTarget() {
+    if (!window.location.hash) return null;
+    try {
+      return document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+    } catch {
+      // A malformed percent escape is an unknown address, not a loading failure.
+      return null;
+    }
+  }
+
   function updateUrl() {
     const url = new URL(window.location.href);
+    const previousChapter = url.searchParams.get("chapter");
+    if (previousChapter && previousChapter !== state.chapter) url.hash = "";
     url.searchParams.set("chapter", state.chapter);
     if (state.query) url.searchParams.set("q", state.query);
     else url.searchParams.delete("q");
@@ -378,7 +390,7 @@
       updateChapterControls();
       elements.emptyState.querySelector("h2").textContent = "No matching lines";
       elements.emptyState.querySelector("p").textContent = "Try a broader search or another chapter.";
-      const hashTarget = window.location.hash ? document.querySelector(window.location.hash) : null;
+      const hashTarget = fragmentTarget();
       hashTarget?.scrollIntoView({ block: "center" });
     } catch (error) {
       if (token !== state.searchToken) return;

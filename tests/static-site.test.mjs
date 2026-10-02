@@ -55,8 +55,9 @@ test("chapter picker supports directional keys and returns focus after selection
 
 test("empty URL hashes cannot trigger the chapter-load error state", async () => {
   const script = await read("assets/app.js");
-  assert.match(script, /window\.location\.hash \? document\.querySelector/);
-  assert.doesNotMatch(script, /window\.location\.hash && document\.querySelector/);
+  assert.match(script, /if \(!window\.location\.hash\) return null/);
+  assert.match(script, /const hashTarget = fragmentTarget\(\)/);
+  assert.doesNotMatch(script, /querySelector\(window\.location\.hash\)/);
 });
 
 test("index covers every canonical route and chapter", async () => {

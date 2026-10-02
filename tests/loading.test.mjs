@@ -56,7 +56,7 @@ function renderHarness() {
     queryTerms: () => state.query ? [state.query] : [], matches: () => true,
     loadChapter: id => { const r = deferred(); requests.set(id, r); return r.promise; },
     makeLineArticle: line => line, makeBackgroundFigure: () => null,
-    updateChapterControls() {}, updateUrl() {}, schedulePortraitUpdate() {},
+    updateChapterControls() {}, updateUrl() {}, schedulePortraitUpdate() {}, fragmentTarget: () => null,
     window: { location: { hash: '' } }, console: { error() {} },
     renderGroups: groups => { const lines = groups.flatMap(group => group.lines); elements.scriptLines.replaceChildren(...lines); elements.emptyState.hidden = lines.length > 0; },
   };
