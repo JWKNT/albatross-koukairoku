@@ -8,8 +8,8 @@ const read = (path) => readFile(new URL(path, root), "utf8");
 test("page exposes the minimal route-aware reader controls", async () => {
   const html = await read("index.html");
   assert.match(html, /Albatross Koukairoku Script Reader/);
-  assert.match(html, /href="https:\/\/jehlp\.net\/site-theme\/v2\/base\.css\?v=20260930-mobile-header"/);
-  assert.match(html, /href="https:\/\/jehlp\.net\/site-theme\/v2\/reader\.css\?v=20260930-header-home"/);
+  assert.match(html, /href="https:\/\/jehlp\.net\/site-theme\/v2\/base\.css\?v=20261009-folio-wrenfold"/);
+  assert.match(html, /href="https:\/\/jehlp\.net\/site-theme\/v2\/reader\.css\?v=20261009-folio-wrenfold"/);
   assert.match(html, /src="https:\/\/jehlp\.net\/site-theme\/v2\/theme\.js\?v=20260930-header-home"/);
   assert.match(html, /id="route-select"/);
   assert.match(html, /id="route-select"[^>]*data-ui-select/);
