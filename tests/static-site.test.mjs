@@ -174,3 +174,17 @@ test("tools page mirrors the release download shell", async () => {
   assert.match(tools, /releases\/tag\/albatross-english-patcher-v1\.1\.2/);
   assert.match(tools, /bcfd7dd8572f2413dac3dc9e653c864caf6d15c940a69325cac15b5c659265ce/);
 });
+
+
+test("mastheads identify the project without duplicate or current-page links", async () => {
+  for (const page of ["index.html", "tools.html"]) {
+    const html = await read(page);
+    const header = html.match(/<header class="site-header[^>]*>[\s\S]*?<\/header>/)?.[0];
+    assert.ok(header, page);
+    assert.match(header, /<span class="site-title">[^<]+<\/span>/);
+    assert.doesNotMatch(header, /<a[^>]*class="site-title"/);
+    assert.doesNotMatch(header, /aria-current="page"/);
+    assert.match(header, /class="site-home"/);
+    if (page !== "index.html") assert.match(header, /href="\.\.?\/">Reader<\/a>/);
+  }
+});
